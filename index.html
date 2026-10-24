@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRAMS — Client Request and Assistance Monitoring System</title>
+  <style>
+    :root {
+      --teal-deep: #0D7C73;
+      --teal-medium: #14B8A6;
+      --teal-light: #CCFBF1;
+      --gold-deep: #B45309;
+      --gold-medium: #F59E0B;
+      --gold-light: #FEF3C7;
+      --warm-50: #F8FFFE;
+      --warm-100: #ECFDF5;
+      --warm-200: #D1FAE5;
+      --text-main: #1F2937;
+      --text-soft: #4B5563;
+      --text-muted: #9CA3AF;
+      --border-soft: #D1D5DB;
+      --shadow-soft: 0 2px 8px rgba(13,124,115,0.08);
+      --shadow-card: 0 4px 16px rgba(13,124,115,0.10);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+    *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;}
+    body{color:var(--text-main); background:linear-gradient(180deg, var(--warm-50) 0%, #FFFFFF 100%); min-height:100vh;}
+    .hidden{display:none !important;}
+    .btn-sm{padding:7px 14px; font-size:14px; border-radius:8px; border:none; cursor:pointer; font-weight:500; transition:0.2s;}
+    .btn-sm:hover{transform:translateY(-1px);}
+    .btn-primary{background:var(--teal-deep); color:white;}
+    .btn-primary:hover{background:var(--teal-medium);}
+    .btn-success{background:#059669; color:white;}
+    .btn-warning{background:var(--gold-medium); color:white;}
+    .btn-danger{background:#DC2626; color:white;}
+    .btn-outline{background:transparent; border:1px solid var(--teal-deep); color:var(--teal-deep);}
+
+    /* LOGIN SCREEN */
+    #loginScreen{
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg, var(--teal-light) 0%, var(--warm-100) 60%, var(--gold-light) 100%);
+      position:relative; overflow:hidden;
+    }
+    .login-decoration{position:absolute; font-size:260px; opacity:0.06;}
+    .login-decoration.left{top:10%; left:3%;}
+    .login-decoration.right{bottom:10%; right:3%;}
+    .login-card{
+      background:white; border-radius:var(--radius-lg); padding:44px 36px; max-width:440px; width:100%;
+      box-shadow:var(--shadow-card); text-align:center; border-top:5px solid var(--teal-deep);
+      position:relative; z-index:2; margin:20px;
+    }
+    .login-icon{font-size:54px; margin-bottom:12px;}
+    .login-card h1{font-size:22px; color:var(--teal-deep); margin-bottom:6px; line-height:1.3;}
+    .login-tagline{color:var(--text-soft); font-size:14px; margin-bottom:4px; font-style:italic;}
+    .login-programs{color:var(--gold-deep); font-weight:600; margin-bottom:24px; letter-spacing:0.5px;}
+    .form-group{margin-bottom:18px; text-align:left;}
+    .form-group label{display:block; margin-bottom:6px; font-weight:500; font-size:14px;}
+    .form-group input{
+      width:100%; padding:13px 16px; border:1px solid var(--border-soft); border-radius:10px; font-size:15px;
+      transition:0.2s;
+    }
+    .form-group input:focus{outline:none; border-color:var(--teal-deep); box-shadow:0 0 0 3px rgba(13,124,115,0.15);}
+    .login-btn{
+      width:100%; padding:14px; background:linear-gradient(90deg, var(--teal-deep) 0%, var(--teal-medium) 100%);
+      color:white; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;
+      transition:0.3s; margin-top:8px;
+    }
+    .login-btn:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(13,124,115,0.25);}
+    .login-msg{color:#DC2626; margin-top:14px; font-size:14px; display:none;}
+
+    /* HEADER & PROFILE */
+    header{
+      background:white; padding:18px 30px; box-shadow:var(--shadow-soft);
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    }
+    .header-left{display:flex; align-items:center; gap:12px;}
+    .header-icon{font-size:28px;}
+    .header-title h2{font-size:18px; color:var(--teal-deep);}
+    .header-title p{font-size:13px; color:var(--text-muted); font-style:italic;}
+    .user-area{display:flex; align-items:center; gap:12px;}
+    .user-avatar{
+      width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--teal-deep), var(--teal-medium));
+      color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px;
+      cursor:pointer; border:2px solid white; box-shadow:0 0 0 2px var(--teal-light);
+      object-fit:cover;
+    }
+    .user-name{font-weight:600; font-size:14px;}
+    .profile-panel{
+      background:white; margin:0 20px; border-radius:0 0 var(--radius) var(--radius); box-shadow:0 8px 16px rgba(13,124,115,0.12);
+      padding:20px 24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+    }
+    .profile-avatar-lg{
+      width:80px; height:80px; border-radius:50%; background:var(--teal-light); display:flex; align-items:center; justify-content:center;
+      font-size:36px; overflow:hidden; border:3px solid var(--teal-medium);
+    }
+    .profile-avatar-lg img{width:100%; height:100%; object-fit:cover;}
+    .profile-info p{margin:6px 0; font-size:14px;}
+    .profile-info strong{color:var(--teal-deep);}
+
+    /* NAV & LAYOUT */
+    .container{max-width:1200px; margin:0 auto; padding:20px;}
+    nav{
+      background:white; margin:16px 0; border-radius:var(--radius); padding:10px;
+      display:flex; gap:8px; flex-wrap:wrap; box-shadow:var(--shadow-soft);
+    }
+    nav button{
+      background:transparent; border:none; padding:11px 16px; border-radius:8px; cursor:pointer;
+      font-weight:500; transition:0.2s;
+    }
+    nav button.active{background:var(--teal-deep); color:white;}
+    nav button:hover:not(.active){background:var(--teal-light);}
+
+    /* COLLAPSIBLE SECTIONS */
+    .collapsible-section{
+      background:white; border-radius:var(--radius); margin-bottom:18px; box-shadow:var(--shadow-soft); overflow:hidden;
+      border-left:3px solid var(--teal-medium);
+    }
+    .section-header{
+      padding:16px 20px; background:var(--warm-100); cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+      transition:0.2s;
+    }
+    .section-header:hover{background:var(--warm-200);}
+    .section-header h3{font-size:16px; display:flex; align-items:center; gap:8px;}
+    .section-toggle{transition:transform 0.3s ease; user-select:none;}
+    .section-toggle.collapsed{transform:rotate(-90deg);}
+    .section-body{
+      padding:20px; max-height:3000px; opacity:1; overflow:hidden; transition:all 0.35s ease;
+    }
+    .section-body.collapsed{max-height:0; opacity:0; padding-top:0; padding-bottom:0;}
+
+    /* STATUS STAGES */
+    .status-stages{display:flex; flex-wrap:wrap; gap:6px; margin:14px 0;}
+    .stage{
+      padding:8px 12px; border-radius:20px; font-size:13px; font-weight:500; border:2px solid transparent; transition:0.2s;
+    }
+    .stage.todo{background:#F3F4F6; color:var(--text-muted); border-color:#E5E7EB;}
+    .stage.current{background:var(--teal-deep); color:white; border-color:var(--teal-medium); font-weight:600; box-shadow:0 0 0 3px var(--teal-light);}
+    .stage.done{background:var(--teal-light); color:var(--teal-deep); border-color:var(--teal-medium);}
+    .stage.rejected{background:#FEE2E2; color:#B91C1C; border-color:#FECACA;}
+    .stage:hover:not(.todo){transform:scale(1.03);}
+
+    /* REMARKS */
+    .remark-item{
+      padding:12px 14px; background:var(--warm-50); border-radius:8px; margin:8px 0;
+      border-left:3px solid var(--gold-medium);
+    }
+    .remark-header{font-size:13px; font-weight:600; color:var(--gold-deep); margin-bottom:4px;}
+    .remark-text{font-size:14px; line-height:1.5;}
+    .remark-form{margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;}
+    .remark-form textarea{
+      flex:1; min-height:70px; padding:10px; border:1px solid var(--border-soft); border-radius:8px;
+      resize:vertical; font-size:14px; min-width:240px;
+    }
+
+    /* ENTRY CARDS & BADGES */
+    .entry-card{
+      border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; margin-bottom:16px;
+      background:white; transition:0.2s;
+    }
+    .entry-card:hover{box-shadow:var(--shadow-card);}
+    .entry-actions{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;}
+    .badge{
+      display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; color:white; margin-left:8px;
+    }
+    .badge.pending{background:var(--gold-medium);}
+    .badge.approved{background:#059669;}
+    .badge.rejected{background:#DC2626;}
+
+    /* DASHBOARD STATS */
+    .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px;}
+    .stat-card{
+      background:linear-gradient(135deg, var(--teal-light) 0%, #FFFFFF 100%);
+      padding:22px; border-radius:var(--radius); border-left:4px solid var(--teal-deep); transition:all 0.4s ease;
+    }
+    .stat-card.update-flash{box-shadow:0 0 0 4px rgba(5,150,105,0.25); background:linear-gradient(135deg, #D1FAE5, #FFFFFF); transform:scale(1.02);}
+    .stat-card .num{font-size:30px; font-weight:700; color:var(--teal-deep); margin-top:4px;}
+
+    /* FORMS & UPLOADS */
+    input, select, textarea{
+      width:100%; padding:11px 14px; border:1px solid var(--border-soft); border-radius:8px; font-size:15px;
+    }
+    .attach-row{display:flex; gap:10px; align-items:center; margin:10px 0; flex-wrap:wrap;}
+    .attach-row input[type="file"], .attach-row input[type="text"]{flex:1; min-width:160px;}
+    #cameraView{width:100%; max-width:420px; border-radius:10px; background:#000; margin:12px 0; display:none;}
+    .edit-fields{background:var(--warm-100); padding:16px; border-radius:8px; margin:10px 0;}
+  </style>
+</head>
+<body>
+  <!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen">
+  <div class="login-decoration left">🌿</div>
+  <div class="login-decoration right">🤝</div>
+  <div class="login-card">
+    <div class="login-icon">🌿</div>
+    <h1>Client Request and Assistance<br>Monitoring System</h1>
+    <p class="login-tagline"><strong>CRAMS</strong></p>
+    <p class="login-programs">Para sa Marig-on, Mainuswagon, ngan Malipayon nga Norte san Samar</p>
+    <p class="login-programs">MAIFP • PSAP • TUPAD • TDP</p>
+    <div class="form-group">
+      <label>👤 Username</label>
+      <input type="text" id="user" placeholder="Enter assigned username"/>
+    </div>
+    <div class="form-group">
+      <label>🔒 Password</label>
+      <input type="password" id="pass" placeholder="Enter password"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In to System</button>
+    <p class="login-msg" id="loginMsg">Invalid username or password — please try again</p>
+  </div>
+</div>
+
+<!-- ===== MAIN SYSTEM ===== -->
+<div id="mainScreen" class="hidden">
+  <header>
+    <div class="header-left">
+      <span class="header-icon">🌿</span>
+      <div class="header-title">
+        <h2>CRAMS — Client Request and Assistance Monitoring System</h2>
+        <p>Para sa Marig-on, Mainuswagon, ngan Malipayon nga Norte san Samar</p>
+      </div>
+    </div>
+    <div class="user-area">
+      <span class="user-name" id="dispUser">—</span>
+      <div class="user-avatar" id="avatarBtn" onclick="toggleProfile()">👤</div>
+      <button class="btn-sm btn-outline" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- PROFILE PANEL -->
+  <div id="profilePanel" class="profile-panel hidden">
+    <div class="profile-avatar-lg" id="profileAvatarLarge">👤</div>
+    <div class="profile-info">
+      <p><strong>Username:</strong> <span id="profUser"></span></p>
+      <p><strong>Role:</strong> <span id="profRole"></span></p>
+      <div style="margin-top:8px;">
+        <label class="btn-sm btn-primary" style="display:inline-block; cursor:pointer; margin:0;">
+          Upload Profile Photo
+          <input type="file" accept="image/*" onchange="uploadProfilePhoto(this)" style="display:none;"/>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <nav class="container">
+    <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+    <button class="nav-btn" data-page="entry">📝 New Entry</button>
+    <button class="nav-btn" data-page="records">📋 All Records</button>
+    <button class="nav-btn" data-page="monthly">📅 Monthly Reports</button>
+    <button class="nav-btn" data-page="users" id="userMgmtBtn" class="hidden">👤 Manage Users</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- DASHBOARD -->
+    <section id="dashboardPage" class="page">
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📈 Overview Statistics</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <div class="stats-grid">
+            <div class="stat-card" id="statTotal">
+              <p>Total Requests</p>
+              <div class="num" id="valTotal">0</div>
+            </div>
+            <div class="stat-card" id="statPending">
+              <p>In Progress</p>
+              <div class="num" id="valPending">0</div>
+            </div>
+            <div class="stat-card" id="statApproved">
+              <p>Approved</p>
+              <div class="num" id="valApproved">0</div>
+            </div>
+            <div class="stat-card" id="statReleased">
+              <p>Released / Completed</p>
+              <div class="num" id="valReleased">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📊 Per Program Summary</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body" id="programStats"><p>No data yet.</p></div>
+      </div>
+
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>🔄 Recent Activity</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body" id="activityFeed"><p>No recent activity.</p></div>
+      </div>
+    </section>
+
+    <!-- NEW ENTRY -->
+    <section id="entryPage" class="page hidden">
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📋 Client / Beneficiary Information</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group">
+            <label>Program *</label>
+            <select id="program" onchange="toggleProgramFields()">
+              <option value="">Select Program</option>
+              <option value="MAIFP">MAIFP</option>
+              <option value="PSAP">PSAP</option>
+              <option value="TUPAD">TUPAD</option>
+              <option value="TDP">TDP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Full Name (Last, First Middle) *</label>
+            <input type="text" id="benName" placeholder="e.g. Dela Cruz, Juan A."/>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="benAge"/>
+          </div>
+          <div class="form-group">
+            <label>Complete Address</label>
+            <input type="text" id="benAddr" placeholder="Barangay, Municipality, Northern Samar"/>
+          </div>
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" id="benContact" placeholder="09XX-XXX-XXXX"/>
+          </div>
+          <div class="form-group">
+            <label>Date Submitted</label>
+            <input type="date" id="submitDate"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-section" id="maifpAttachBlock" class="hidden">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📎 MAIFP Required Documents</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <div class="attach-row">
+            <label style="width:260px;">Medical Certificate:</label>
+            <input type="file" id="doc_medCert" accept="image/*,.pdf">
+            <button class="btn-sm btn-primary" onclick="startCamera('doc_medCert')">📷 Camera</button>
+          </div>
+          <div class="attach-row">
+            <label style="width:260px;">Barangay Certificate of Indigency:</label>
+            <input type="file" id="doc_indigency" accept="image/*,.pdf">
+            <button class="btn-sm btn-primary" onclick="startCamera('doc_indigency')">📷 Camera</button>
+          </div>
+          <div class="attach-row">
+            <label style="width:260px;">Treatment / Lab Request / Prescription with Costing:</label>
+            <input type="file" id="doc_treatment" accept="image/*,.pdf">
+            <button class="btn-sm btn-primary" onclick="startCamera('doc_treatment')">📷 Camera</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-section" id="dynAttachBlock" class="hidden">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📎 Program Attachments — Add or Remove</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <div id="dynAttachList"></div>
+          <button class="btn-sm btn-primary" onclick="addAttachmentRow()">+ Add Attachment</button>
+        </div>
+      </div>
+
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📸 Camera Capture</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <video id="cameraView" autoplay playsinline></video>
+          <button id="captureBtn" class="btn-sm btn-success hidden" onclick="capturePhoto()">📸 Capture Photo</button>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:10px;">
+        <button class="btn-primary" style="padding:13px 36px; font-size:16px;" onclick="saveEntry()">💾 Save Entry</button>
+      </div>
+    </section>
+
+    <!-- ALL RECORDS WITH STATUS & REMARKS -->
+    <section id="recordsPage" class="page hidden">
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📋 Application Status Monitoring — All Entries</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body" id="allEntries"><p>No entries yet.</p></div>
+      </div>
+    </section>
+
+    <!-- MONTHLY REPORTS -->
+    <section id="monthlyPage" class="page hidden">
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>📅 Monthly Reports</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body" id="monthlyGrouped"><p>No entries yet.</p></div>
+      </div>
+    </section>
+
+    <!-- USER MANAGEMENT -->
+    <section id="usersPage" class="page hidden">
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>➕ Create New System User</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="newUser"/>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="newPass"/>
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="newRole">
+              <option value="viewer">👁️ Viewer</option>
+              <option value="encoder">✍️ Encoder</option>
+              <option value="approver">✅ Approver</option>
+              <option value="admin">🔑 Admin</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="addSystemUser()">Create User</button>
+        </div>
+      </div>
+      <div class="collapsible-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h3>👥 Existing Users</h3>
+          <span class="section-toggle">▼</span>
+        </div>
+        <div class="section-body" id="userList"><p>Loading...</p></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+<script>
+// ========== CONFIGURATION ==========
+const STATUS_STAGES = ['Received', 'For Document Review', 'Incomplete', 'Complete', 'Under Processing', 'Approved', 'Rejected', 'Released / Completed'];
+const STAGE_PROGRESS_ORDER = {
+  'Received':1, 'For Document Review':2, 'Incomplete':3, 'Complete':4,
+  'Under Processing':5, 'Approved':6, 'Rejected':6, 'Released / Completed':7
+};
+
+// ========== COLLAPSE/EXPAND ==========
+function toggleSection(header){
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.section-toggle');
+  body.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+}
+
+// ========== PROFILE & AVATAR ==========
+let currentUser = null;
+let systemUsers = JSON.parse(localStorage.getItem('sysUsers')) || {
+  admin: { pass: 'admin123', role: 'admin', photo: null }
+};
+let entries = JSON.parse(localStorage.getItem('crams_entries')) || [];
+let attachTargetId = null;
+
+function toggleProfile(){
+  document.getElementById('profilePanel').classList.toggle('hidden');
+  if(currentUser){
+    document.getElementById('profUser').textContent = currentUser.name;
+    document.getElementById('profRole').textContent = currentUser.role;
+    updateAvatarDisplays();
+  }
+}
+function uploadProfilePhoto(input){
+  if(!input.files[0])return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if(!systemUsers[currentUser.name]) systemUsers[currentUser.name] = {};
+    systemUsers[currentUser.name].photo = e.target.result;
+    saveToStorage();
+    updateAvatarDisplays();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function updateAvatarDisplays(){
+  const u = systemUsers[currentUser.name];
+  const src = u?.photo;
+  const avatarBtn = document.getElementById('avatarBtn');
+  const avatarLg = document.getElementById('profileAvatarLarge');
+  if(src){
+    avatarBtn.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    avatarLg.innerHTML = `<img src="${src}">`;
+  }else{
+    avatarBtn.innerHTML = '👤';
+    avatarLg.innerHTML = '👤';
+  }
+}
+
+// ========== LOGIN ==========
+function doLogin(){
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value;
+  if(systemUsers[u] && systemUsers[u].pass === p){
+    currentUser = {name:u, role:systemUsers[u].role};
+    startSession();
+  }else{
+    document.getElementById('loginMsg').style.display='block';
+  }
+}
+function startSession(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('mainScreen').classList.remove('hidden');
+  document.getElementById('dispUser').textContent = `${currentUser.name} (${currentUser.role})`;
+  document.getElementById('userMgmtBtn').classList.toggle('hidden', currentUser.role !== 'admin');
+  document.getElementById('submitDate').valueAsDate = new Date();
+  updateAvatarDisplays();
+  renderDashboard(); renderRecords(); renderMonthly(); renderUserList();
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById('mainScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('user').value=''; document.getElementById('pass').value='';
+  document.getElementById('loginMsg').style.display='none';
+  document.getElementById('profilePanel').classList.add('hidden');
+}
+
+// ========== NAVIGATION ==========
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+    document.getElementById(btn.dataset.page+'Page').classList.remove('hidden');
+    if(btn.dataset.page==='dashboard') renderDashboard();
+    if(btn.dataset.page==='records') renderRecords();
+    if(btn.dataset.page==='monthly') renderMonthly();
+  });
+});
+
+// ========== PROGRAM ATTACHMENTS TOGGLE ==========
+function toggleProgramFields(){
+  const prog = document.getElementById('program').value;
+  document.getElementById('maifpAttachBlock').classList.toggle('hidden', prog!=='MAIFP');
+  document.getElementById('dynAttachBlock').classList.toggle('hidden', !prog || prog==='MAIFP');
+}
+function addAttachmentRow(){
+  const row = document.createElement('div');
+  row.className='attach-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Document Name" class="attach-name">
+    <input type="file" class="attach-file" accept="image/*,.pdf">
+    <button class="btn-sm btn-primary" onclick="startCameraForRow(this)">📷</button>
+    <button class="btn-sm btn-danger" onclick="this.closest('.attach-row').remove()">✕ Remove</button>
+  `;
+  document.getElementById('dynAttachList').appendChild(row);
+}
+
+// ========== CAMERA ==========
+async function startCamera(fieldId){
+  attachTargetId = fieldId;
+  const vid = document.getElementById('cameraView');
+  document.getElementById('captureBtn').classList.remove('hidden');
+  vid.style.display='block';
+  vid.srcObject = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+}
+function startCameraForRow(btn){
+  attachTargetId = btn.closest('.attach-row');
+  const vid = document.getElementById('cameraView');
+  document.getElementById('captureBtn').classList.remove('hidden');
+  vid.style.display='block';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(v=>vid.srcObject=v);
+}
+function capturePhoto(){
+  const vid = document.getElementById('cameraView');
+  const canvas = document.createElement('canvas');
+  canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
+  canvas.getContext('2d').drawImage(vid,0,0);
+  canvas.toBlob(blob=>{
+    const file = new File([blob], `capture_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.jpg`, {type:'image/jpeg'});
+    const dt = new DataTransfer(); dt.items.add(file);
+    if(typeof attachTargetId==='string'){
+      document.getElementById(attachTargetId).files = dt.files;
+    }else{
+      attachTargetId.querySelector('.attach-file').files = dt.files;
+      const nameInp = attachTargetId.querySelector('.attach-name');
+      if(!nameInp.value) nameInp.value = 'Camera Photo';
+    }
+    vid.srcObject?.getTracks().forEach(t=>t.stop());
+    vid.style.display='none';
+    document.getElementById('captureBtn').classList.add('hidden');
+  },'image/jpeg',0.85);
+}
+
+// ========== SAVE NEW ENTRY ==========
+function saveEntry(){
+  if(!['encoder','approver','admin'].includes(currentUser?.role)){
+    alert('Access Restricted — Encoder, Approver or Admin only.'); return;
+  }
+  const prog = document.getElementById('program').value;
+  if(!prog) return alert('Select a Program.');
+  const sdate = document.getElementById('submitDate').value || new Date().toISOString().slice(0,10);
+  const ym = sdate.slice(0,7).replace('-','');
+  const countThisMonth = entries.filter(e=>e.series.startsWith(ym)).length+1;
+  const series = `${ym}-${String(countThisMonth).padStart(3,'0')}`;
+
+  const entry = {
+    id: Date.now(),
+    series,
+    program: prog,
+    name: document.getElementById('benName').value,
+    age: document.getElementById('benAge').value,
+    address: document.getElementById('benAddr').value,
+    contact: document.getElementById('benContact').value,
+    submitDate: sdate,
+    statusStage: 'Received',
+    statusHistory:[],
+    remarks:[],
+    attachments:{},
+    submittedBy: currentUser.name,
+    timestamp: new Date().toISOString()
+  };
+
+  if(prog==='MAIFP'){
+    entry.attachments = {
+      medCert: docInfo('doc_medCert'),
+      indigency: docInfo('doc_indigency'),
+      treatment: docInfo('doc_treatment')
+    };
+  }else{
+    document.querySelectorAll('#dynAttachList .attach-row').forEach((row,i)=>{
+      entry.attachments[`custom_${i}`] = {
+        displayName: row.querySelector('.attach-name').value.trim()||`Attachment ${i+1}`,
+        ...docInfo(row.querySelector('.attach-file'))
+      };
+    });
+  }
+
+  entries.unshift(entry);
+  saveToStorage();
+  alert(`✅ Saved! Series: ${series}`);
+  document.querySelectorAll('#entryPage input, #entryPage select').forEach(i=>{if(i.type!=='date')i.value='';});
+  document.getElementById('dynAttachList').innerHTML='';
+  toggleProgramFields();
+  renderDashboard(); renderRecords(); renderMonthly();
+}
+function docInfo(el){
+  if(!el) return {name:'', size:0};
+  return {name: el.files?.[0]?.name || 'Not Uploaded', size: el.files?.[0]?.size || 0};
+}
+function saveToStorage(){
+  localStorage.setItem('crams_entries', JSON.stringify(entries));
+  localStorage.setItem('sysUsers', JSON.stringify(systemUsers));
+}
+
+// ========== STATUS STAGE UPDATE ==========
+function updateStatusStage(id, newStage){
+  if(!['approver','admin'].includes(currentUser.role)){alert('Permission Denied.');return;}
+  const entry = entries.find(e=>e.id===id);
+  if(!entry)return;
+  entry.statusStage = newStage;
+  entry.statusHistory.push({stage:newStage, user:currentUser.name, time:new Date().toLocaleString()});
+  saveToStorage();
+  if(newStage==='Approved'){
+    const card = document.getElementById('statApproved');
+    if(card){card.classList.add('update-flash'); setTimeout(()=>card.classList.remove('update-flash'),1400);}
+  }
+  renderDashboard(); renderRecords(); renderMonthly();
+}
+
+// ========== REMARKS ==========
+function addRemark(id){
+  const textarea = document.getElementById(`remarkInput-${id}`);
+  const text = textarea.value.trim();
+  if(!text)return;
+  const entry = entries.find(e=>e.id===id);
+  if(!entry)return;
+  entry.remarks.push({user:currentUser.name, role:currentUser.role, text, time:new Date().toLocaleString()});
+  saveToStorage();
+  textarea.value='';
+  renderRecords();
+}
+
+// ========== ADMIN EDIT & DELETE ==========
+function toggleEdit(id){
+  document.getElementById(`editForm-${id}`).classList.toggle('hidden');
+}
+function saveEdit(id){
+  const entry = entries.find(e=>e.id===id);
+  if(!entry || currentUser.role!=='admin')return;
+  entry.name = document.getElementById(`edit_name-${id}`).value;
+  entry.age = document.getElementById(`edit_age-${id}`).value;
+  entry.address = document.getElementById(`edit_addr-${id}`).value;
+  entry.contact = document.getElementById(`edit_contact-${id}`).value;
+  entry.program = document.getElementById(`edit_prog-${id}`).value;
+  saveToStorage();
+  alert('Entry updated.');
+  renderRecords(); renderMonthly();
+}
+function deleteEntry(id){
+  if(currentUser.role!=='admin' || !confirm('Delete this entry permanently?'))return;
+  entries = entries.filter(e=>e.id!==id);
+  saveToStorage();
+  renderDashboard(); renderRecords(); renderMonthly();
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard(){
+  document.getElementById('valTotal').textContent = entries.length;
+  document.getElementById('valPending').textContent = entries.filter(e=>!['Approved','Rejected','Released / Completed'].includes(e.statusStage)).length;
+  document.getElementById('valApproved').textContent = entries.filter(e=>e.statusStage==='Approved').length;
+  document.getElementById('valReleased').textContent = entries.filter(e=>e.statusStage==='Released / Completed').length;
+
+  const progStats = {};
+  entries.forEach(e=>progStats[e.program]=(progStats[e.program]||0)+1);
+  document.getElementById('programStats').innerHTML = Object.keys(progStats).length?
+    Object.entries(progStats).map(([p,c])=>`<p style="padding:6px 0; border-bottom:1px solid var(--border-soft);"><strong>${p}:</strong> ${c}</p>`).join(''):'No entries yet.';
+
+  document.getElementById('activityFeed').innerHTML = entries.length?
+    entries.slice(0,6).map(e=>`
+      <p style="padding:8px 0; border-bottom:1px solid var(--border-soft);">
+        <small style="color:var(--text-muted)">${new Date(e.timestamp).toLocaleString()}</small> —
+        <strong>${e.series}</strong> ${e.name} → <em>${e.statusStage}</em>
+      </p>`).join(''):'No activity.';
+}
+
+// ========== RENDER RECORDS — FULL STATUS & REMARKS ==========
+function renderRecords(){
+  const c = document.getElementById('allEntries');
+  c.innerHTML = entries.length? entries.map(renderEntryCard).join(''):'No entries submitted yet.';
+}
+function renderEntryCard(e){
+  const prog = e.program;
+  const attachText = Object.entries(e.attachments).map(([k,v])=>v.displayName||v.name).join(', ')||'None';
+  const isAdmin = currentUser?.role==='admin';
+  const canAdvance = ['approver','admin'].includes(currentUser?.role);
+  
+  const currentVal = STAGE_PROGRESS_ORDER[e.statusStage]||0;
+  const stagesHtml = STATUS_STAGES.map(stage=>{
+    const val = STAGE_PROGRESS_ORDER[stage];
+    let cls = 'stage todo';
+    if(e.statusStage===stage) cls = 'stage current';
+    else if(val < currentVal) cls = 'stage done';
+    if(stage==='Rejected' && e.statusStage==='Rejected') cls = 'stage rejected current';
+    const clickable = canAdvance && e.statusStage!=='Released / Completed';
+    return `<span class="${cls}" ${clickable?`onclick="updateStatusStage(${e.id},'${stage}')"`:'style=cursor:default;'}>${stage}</span>`;
+  }).join('');
+
+  const remarksHtml = e.remarks.length?
+    e.remarks.map(r=>`
+      <div class="remark-item">
+        <div class="remark-header">${r.user} (${r.role}) — ${r.time}</div>
+        <div class="remark-text">${r.text}</div>
+      </div>`).join(''):'<p style="color:var(--text-muted); font-size:14px;">No remarks yet.</p>';
+
+  const editFormHtml = isAdmin ? `
+    <div id="editForm-${e.id}" class="edit-fields hidden">
+      <p style="font-weight:600; margin-bottom:10px;">Edit Entry — Admin Only</p>
+      <div class="form-group"><label>Name</label><input id="edit_name-${e.id}" value="${e.name}"/></div>
+      <div class="form-group"><label>Age</label><input type="number" id="edit_age-${e.id}" value="${e.age}"/></div>
+      <div class="form-group"><label>Address</label><input id="edit_addr-${e.id}" value="${e.address}"/></div>
+      <div class="form-group"><label>Contact</label><input id="edit_contact-${e.id}" value="${e.contact}"/></div>
+      <div class="form-group"><label>Program</label>
+        <select id="edit_prog-${e.id}">
+          <option ${prog==='MAIFP'?'selected':''}>MAIFP</option>
+          <option ${prog==='PSAP'?'selected':''}>PSAP</option>
+          <option ${prog==='TUPAD'?'selected':''}>TUPAD</option>
+          <option ${prog==='TDP'?'selected':''}>TDP</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn-sm btn-success" onclick="saveEdit(${e.id})">Save Changes</button>
+        <button class="btn-sm btn-outline" onclick="toggleEdit(${e.id})">Cancel</button>
+      </div>
+    </div>`:'';
+
+  return `
+    <div class="entry-card">
+      <h4 style="font-size:15px; margin-bottom:8px;">
+        ${e.series} — ${e.name}
+        <span class="badge ${e.statusStage==='Approved'?'approved':e.statusStage==='Rejected'?'rejected':'pending'}">${e.statusStage}</span>
+      </h4>
+      <p style="font-size:14px; margin:4px 0;"><strong>Program:</strong> ${e.program} | <strong>Submitted:</strong> ${e.submitDate}</p>
+      <p style="font-size:14px; margin:4px 0;"><strong>Address:</strong> ${e.address||'—'} | <strong>Contact:</strong> ${e.contact||'—'}</p>
+      <p style="font-size:14px; margin:4px 0;"><strong>Documents:</strong> ${attachText}</p>
+      <p style="font-size:13px; color:var(--text-muted); margin:4px 0;">Submitted by: ${e.submittedBy}</p>
+      
+      <div style="margin:12px 0;">
+        <p style="font-weight:600; font-size:14px; margin-bottom:6px;">Status Progress — ${canAdvance?'Click stage to update':'View only'}</p>
+        <div class="status-stages">${stagesHtml}</div>
+      </div>
+      
+      <div style="margin-top:14px; border-top:1px solid var(--border-soft); padding-top:14px;">
+        <p style="font-weight:600; font-size:14px; margin-bottom:8px;">Remarks / Comments</p>
+        ${remarksHtml}
+        <div class="remark-form">
+          <textarea id="remarkInput-${e.id}" placeholder="Add new remark — your name will be recorded"></textarea>
+          <button class="btn-sm btn-primary" onclick="addRemark(${e.id})">Post Remark</button>
+        </div>
+      </div>
+      
+      ${editFormHtml}
+      
+      ${isAdmin?`<div class="entry-actions">
+        <button class="btn-sm btn-warning" onclick="toggleEdit(${e.id})">✏️ Edit Entry</button>
+        <button class="btn-sm btn-danger" onclick="deleteEntry(${e.id})">🗑️ Delete</button>
+      </div>`:''}
+    </div>`;
+}
+
+// ========== MONTHLY REPORTS ==========
+function renderMonthly(){
+  const groups = {};
+  entries.forEach(e=>{const m=e.submitDate.slice(0,7); groups[m]=groups[m]||[]; groups[m].push(e);});
+  document.getElementById('monthlyGrouped').innerHTML = Object.keys(groups).sort().reverse().map(m=>`
+    <div class="collapsible-section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span><strong>${m} — ${groups[m].length} Entr${groups[m].length===1?'y':'ies'}</strong></span>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">${groups[m].map(renderEntryCard).join('')}</div>
+    </div>`).join('')||'<p>No entries yet.</p>';
+}
+
+// ========== USER MANAGEMENT ==========
+function addSystemUser(){
+  if(currentUser.role!=='admin')return alert('Admin only.');
+  const u = document.getElementById('newUser').value.trim();
+  const p = document.getElementById('newPass').value;
+  const r = document.getElementById('newRole').value;
+  if(!u||!p)return alert('Fill in Username and Password.');
+  if(systemUsers[u])return alert('Username exists — choose another.');
+  systemUsers[u]={pass:p, role:r, photo:null};
+  saveToStorage();
+  alert('✅ User created successfully!');
+  document.getElementById('newUser').value=''; document.getElementById('newPass').value='';
+  renderUserList();
+}
+function renderUserList(){
+  if(currentUser?.role!=='admin')return;
+  document.getElementById('userList').innerHTML = Object.entries(systemUsers).map(([u,d])=>
+    `<p style="padding:6px 0; border-bottom:1px solid var(--border-soft);">👤 <strong>${u}</strong> — ${d.role}</p>`
+  ).join('');
+}
+
+// Google Sheets ready — paste your Apps Script URL below
+const SHEETS_WEB_APP_URL = "";
+function sendToGoogleSheets(entry){
+  if(!SHEETS_WEB_APP_URL){console.log('Ready for Sheets — URL not set:', entry); return;}
+  fetch(SHEETS_WEB_APP_URL, {
+    method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(entry)
+  }).catch(e=>console.log('Sync pending:',e));
+}
+</script>
+</body>
+</html>
