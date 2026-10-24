@@ -856,14 +856,13 @@ function renderUserList(){
 }
 
 // Google Sheets Sync — Improved Version
-const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9i-UyGoe-3e_VDseM7EFb-cMGXvdrj6bnLbnrp_OG-Mdm4UZEnTnsNe4FCqCEWZo8/exec; //
+const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9i-UyGoe-3e_VDseM7EFb-cMGXvdrj6bnLbnrp_OG-Mdm4UZEnTnsNe4FCqCEWZo8/exec";
 
 function sendToGoogleSheets(entry){
   if (!SHEETS_WEB_APP_URL || SHEETS_WEB_APP_URL === "") {
     console.log('⚠️  Sheets URL not set — entry saved locally only:', entry);
     return;
   }
-
   fetch(SHEETS_WEB_APP_URL, {
     method: 'POST',
     headers: {
@@ -884,7 +883,6 @@ function sendToGoogleSheets(entry){
     console.error('🚫 Network error — could not reach sheet:', err);
     alert('Saved locally. Connection to sheet failed. Check URL & deployment settings.');
   });
-}
-</script>
+}</script>
 </body>
 </html>
